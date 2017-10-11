@@ -486,8 +486,10 @@ class BaseSVC(six.with_metaclass(ABCMeta, BaseLibSVM, ClassifierMixin)):
     @abstractmethod
     def __init__(self, impl, kernel, degree, gamma, coef0, tol, C, nu,
                  shrinking, probability, cache_size, class_weight, verbose,
-                 max_iter, decision_function_shape, random_state):
+                 max_iter, decision_function_shape, random_state, regressed_w=None):
         self.decision_function_shape = decision_function_shape
+        self.regressed_w = regressed_w
+
         super(BaseSVC, self).__init__(
             impl=impl, kernel=kernel, degree=degree, gamma=gamma, coef0=coef0,
             tol=tol, C=C, nu=nu, epsilon=0., shrinking=shrinking,
@@ -751,7 +753,7 @@ def _fit_liblinear(X, y, C, fit_intercept, intercept_scaling, class_weight,
                    penalty, dual, verbose, max_iter, tol,
                    random_state=None, multi_class='ovr',
                    loss='logistic_regression', epsilon=0.1,
-                   sample_weight=None):
+                   sample_weight=None, regressed_w=None):
     """Used by Logistic Regression (and CV) and LinearSVC.
 
     Preprocessing is done in this function before supplying it to liblinear.
@@ -832,6 +834,9 @@ def _fit_liblinear(X, y, C, fit_intercept, intercept_scaling, class_weight,
     sample_weight : array-like, optional
         Weights assigned to each sample.
 
+    regressed_w : array-like, optional (default=[0])
+        Weights towards which to bias the penalty
+
     Returns
     -------
     coef_ : ndarray, shape (n_features, n_features + 1)
@@ -843,6 +848,11 @@ def _fit_liblinear(X, y, C, fit_intercept, intercept_scaling, class_weight,
     n_iter_ : int
         Maximum number of iterations run across all classes.
     """
+    
+    # if no biasing given, fill with 0 for normal penalty
+    if regressed_w is None:
+        regressed_w = np.zeros(X.shape[1] + int(fit_intercept))
+
     if loss not in ['epsilon_insensitive', 'squared_epsilon_insensitive']:
         enc = LabelEncoder()
         y_ind = enc.fit_transform(y)
@@ -887,7 +897,7 @@ def _fit_liblinear(X, y, C, fit_intercept, intercept_scaling, class_weight,
     raw_coef_, n_iter_ = liblinear.train_wrap(
         X, y_ind, sp.isspmatrix(X), solver_type, tol, bias, C,
         class_weight_, max_iter, rnd.randint(np.iinfo('i').max),
-        epsilon, sample_weight)
+        epsilon, sample_weight, regressed_w)
     # Regarding rnd.randint(..) in the above signature:
     # seed for srand in range [0..INT_MAX); due to limitations in Numpy
     # on 32-bit platforms, we can't get to the UINT_MAX limit that

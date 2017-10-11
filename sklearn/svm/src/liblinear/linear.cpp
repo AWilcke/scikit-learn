@@ -32,6 +32,8 @@
 #include <locale.h>
 #include "linear.h"
 #include "tron.h"
+#include <typeinfo>
+#include <iostream>
 typedef signed char schar;
 template <class T> static inline void swap(T& x, T& y) { T t=x; x=y; y=t; }
 #ifndef min
@@ -249,6 +251,7 @@ l2r_l2_svc_fun::l2r_l2_svc_fun(const problem *prob, double *C)
 	D = new double[l];
 	I = new int[l];
 	this->C = C;
+
 }
 
 l2r_l2_svc_fun::~l2r_l2_svc_fun()
@@ -265,11 +268,14 @@ double l2r_l2_svc_fun::fun(double *w)
 	double *y=prob->y;
 	int l=prob->l;
 	int w_size=get_nr_variable();
+    double *T = prob->t;
 
 	Xv(w, z);
 
 	for(i=0;i<w_size;i++)
-		f += w[i]*w[i];
+        std::cout << "\n" << &T[i] << " " << &y[i] << "\n";
+        //f += (w[i]-T[i])*(w[i]-T[i]);
+        f += w[i]*w[i];
 	f /= 2.0;
 	for(i=0;i<l;i++)
 	{
@@ -300,7 +306,8 @@ void l2r_l2_svc_fun::grad(double *w, double *g)
 	subXTv(z, g);
 
 	for(i=0;i<w_size;i++)
-		g[i] = w[i] + 2*g[i];
+        //g[i] = w[i] - T[i] + 2*g[i];
+        g[i] = w[i] + 2*g[i];
 }
 
 int l2r_l2_svc_fun::get_nr_variable(void)

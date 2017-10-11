@@ -174,7 +174,7 @@ class LinearSVC(BaseEstimator, LinearClassifierMixin,
     def __init__(self, penalty='l2', loss='squared_hinge', dual=True, tol=1e-4,
                  C=1.0, multi_class='ovr', fit_intercept=True,
                  intercept_scaling=1, class_weight=None, verbose=0,
-                 random_state=None, max_iter=1000):
+                 random_state=None, max_iter=1000, regressed_w=None):
         self.dual = dual
         self.tol = tol
         self.C = C
@@ -187,6 +187,7 @@ class LinearSVC(BaseEstimator, LinearClassifierMixin,
         self.max_iter = max_iter
         self.penalty = penalty
         self.loss = loss
+        self.regressed_w = regressed_w
 
     def fit(self, X, y, sample_weight=None):
         """Fit the model according to the given training data.
@@ -235,7 +236,7 @@ class LinearSVC(BaseEstimator, LinearClassifierMixin,
             X, y, self.C, self.fit_intercept, self.intercept_scaling,
             self.class_weight, self.penalty, self.dual, self.verbose,
             self.max_iter, self.tol, self.random_state, self.multi_class,
-            self.loss, sample_weight=sample_weight)
+            self.loss, sample_weight=sample_weight, regressed_w=self.regressed_w)
 
         if self.multi_class == "crammer_singer" and len(self.classes_) == 2:
             self.coef_ = (self.coef_[1] - self.coef_[0]).reshape(1, -1)
