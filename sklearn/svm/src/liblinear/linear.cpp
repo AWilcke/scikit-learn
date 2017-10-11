@@ -32,8 +32,6 @@
 #include <locale.h>
 #include "linear.h"
 #include "tron.h"
-#include <typeinfo>
-#include <iostream>
 typedef signed char schar;
 template <class T> static inline void swap(T& x, T& y) { T t=x; x=y; y=t; }
 #ifndef min
@@ -268,14 +266,13 @@ double l2r_l2_svc_fun::fun(double *w)
 	double *y=prob->y;
 	int l=prob->l;
 	int w_size=get_nr_variable();
-    double *T = prob->t;
+    double *t = prob->t;
 
 	Xv(w, z);
 
 	for(i=0;i<w_size;i++)
-        std::cout << "\n" << &T[i] << " " << &y[i] << "\n";
-        //f += (w[i]-T[i])*(w[i]-T[i]);
-        f += w[i]*w[i];
+        f += (w[i]-t[i])*(w[i]-t[i]);
+        //f += w[i]*w[i];
 	f /= 2.0;
 	for(i=0;i<l;i++)
 	{
@@ -294,6 +291,7 @@ void l2r_l2_svc_fun::grad(double *w, double *g)
 	double *y=prob->y;
 	int l=prob->l;
 	int w_size=get_nr_variable();
+    double *t=prob->t;
 
 	sizeI = 0;
 	for (i=0;i<l;i++)
@@ -306,8 +304,8 @@ void l2r_l2_svc_fun::grad(double *w, double *g)
 	subXTv(z, g);
 
 	for(i=0;i<w_size;i++)
-        //g[i] = w[i] - T[i] + 2*g[i];
-        g[i] = w[i] + 2*g[i];
+        g[i] = w[i] - t[i] + 2*g[i];
+        //g[i] = w[i] + 2*g[i];
 }
 
 int l2r_l2_svc_fun::get_nr_variable(void)
@@ -2439,6 +2437,7 @@ model* train(const problem *prob, const parameter *param)
 		sub_prob.x = Malloc(feature_node *,sub_prob.l);
 		sub_prob.y = Malloc(double,sub_prob.l);
 		sub_prob.sample_weight = sample_weight;
+        sub_prob.t = prob->t;
 
 		for(k=0; k<sub_prob.l; k++)
 			sub_prob.x[k] = x[k];

@@ -16,7 +16,7 @@ def train_wrap(X, np.ndarray[np.float64_t, ndim=1, mode='c'] Y,
                double C, np.ndarray[np.float64_t, ndim=1] class_weight,
                int max_iter, unsigned random_seed, double epsilon,
                np.ndarray[np.float64_t, ndim=1, mode='c'] sample_weight,
-               regressed_w):
+               np.ndarray[np.float64_t, ndim=1, mode='c'] regressed_w):
     cdef parameter *param
     cdef problem *problem
     cdef model *model
@@ -32,14 +32,14 @@ def train_wrap(X, np.ndarray[np.float64_t, ndim=1, mode='c'] Y,
                 (<np.ndarray[np.int32_t,   ndim=1, mode='c']>X.indptr).data,
                 Y.data, (<np.int32_t>X.shape[1]), bias,
                 sample_weight.data,
-                (<np.ndarray[np.float64_t, ndim=1, mode='c']>regressed_w).data)
+                regressed_w.data)
     else:
         problem = set_problem(
                 (<np.ndarray[np.float64_t, ndim=2, mode='c']>X).data,
                 Y.data,
                 (<np.ndarray[np.float64_t, ndim=2, mode='c']>X).shape,
                 bias, sample_weight.data,
-                (<np.ndarray[np.float64_t, ndim=1, mode='c']>regressed_w).data)
+                regressed_w.data)
 
 
     cdef np.ndarray[np.int32_t, ndim=1, mode='c'] \

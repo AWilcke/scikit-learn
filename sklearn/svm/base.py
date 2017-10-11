@@ -851,7 +851,11 @@ def _fit_liblinear(X, y, C, fit_intercept, intercept_scaling, class_weight,
     
     # if no biasing given, fill with 0 for normal penalty
     if regressed_w is None:
-        regressed_w = np.zeros(X.shape[1] + int(fit_intercept))
+        regressed_w = np.zeros(X.shape[1] + int(fit_intercept), dtype=np.float64)
+    else:
+        if verbose:
+            print("Biasing L2 loss towards: {}".format(regressed_w))
+        regressed_w = np.array(regressed_w, dtype=np.float64)
 
     if loss not in ['epsilon_insensitive', 'squared_epsilon_insensitive']:
         enc = LabelEncoder()

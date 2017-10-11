@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <numpy/arrayobject.h>
 #include "linear.h"
-#include <iostream>
 
 /*
  * Convert matrix to sparse representation suitable for libsvm. x is
@@ -130,7 +129,6 @@ struct problem * set_problem(char *X,char *Y, npy_intp *dims, double bias, char*
     struct problem *problem;
     /* not performant but simple */
     problem = malloc(sizeof(struct problem));
-    std::cout << "\nSIZE: " << sizeof(struct(problem)) << "\n";
     
     if (problem == NULL) return NULL;
     problem->l = (int) dims[0];
