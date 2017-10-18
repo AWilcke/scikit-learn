@@ -291,7 +291,7 @@ void l2r_l2_svc_fun::grad(double *w, double *g)
 	double *y=prob->y;
 	int l=prob->l;
 	int w_size=get_nr_variable();
-    double *t=prob->t;
+	double *t=prob->t;
 
 	sizeI = 0;
 	for (i=0;i<l;i++)
@@ -318,6 +318,7 @@ void l2r_l2_svc_fun::Hv(double *s, double *Hs)
 	int i;
 	int w_size=get_nr_variable();
 	double *wa = new double[sizeI];
+	double *t = prob->t;
 
 	subXv(s, wa);
 	for(i=0;i<sizeI;i++)
@@ -325,7 +326,7 @@ void l2r_l2_svc_fun::Hv(double *s, double *Hs)
 
 	subXTv(wa, Hs);
 	for(i=0;i<w_size;i++)
-		Hs[i] = s[i] + 2*Hs[i];
+		Hs[i] = s[i] - t[i] + 2*Hs[i];
 	delete[] wa;
 }
 
